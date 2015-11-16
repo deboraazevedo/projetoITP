@@ -229,6 +229,100 @@ Imagem* rotacionar90(Imagem* original) {
     return nova;
 }
 
+Pixel calculo_media(Pixel a, Pixel b) {
+    Pixel tmp;
+
+    tmp.r = (a.r + b.r) / 2;
+    tmp.g = (a.g + b.g) / 2;
+    tmp.b = (a.b + b.b) / 2;
+
+    return tmp;
+}
+
+Pixel rgb(int r, int g, int b) {
+    Pixel p;
+
+    p.r = r;
+    p.g = g;
+    p.b = b;
+
+    return p;
+}
+
+void limpar(Imagem* img, Pixel p) {
+    int i;
+    int j;
+
+    for (i = 0; i < img->height; ++i) {
+        for (j = 0; j < img->width; ++j) {
+            img->pixels[i][j] = p;
+        }
+    }
+}
+
+Pixel calculo_media4(Pixel* a, Pixel* b, Pixel* c, Pixel* d) {
+    Pixel tmp;
+
+    tmp.r = (a->r + b->r + c->r + d->r) / 4;
+    tmp.g = (a->g + b->g + c->g + d->g) / 4;
+    tmp.b = (a->b + b->b + c->b + d->b) / 4;
+
+    return tmp;
+}
+
+Imagem* zoom2x(Imagem* org) {
+    int i;
+    int j;
+    Pixel p, a, b, d, e, c;
+    Imagem* nova;
+
+    nova = criar_imagem(org->width * 2, org->height * 2);
+    limpar(nova, rgb(255, 255, 255));
+
+    for (i = 0; i < org->height; ++i) {
+        for (j = 0; j < org->width; ++j) {
+            nova->pixels[i*2][j*2] = org->pixels[i][j];
+        }
+    }
+
+    for (i = 0; i < org->height; ++i) {
+        for (j = 0; j < org->width; ++j) {
+            if (j+1 < org->width) {
+                a = org->pixels[i][j];
+                b = org->pixels[i][j+1];
+                p = calculo_media(a, b);
+            }
+
+            if (j != 0) {
+                nova->pixels[i*2][j*2-1] = p;
+            }
+
+            if (i+1 < org->height) {
+                a = org->pixels[i][j];
+                b = org->pixels[i+1][j];
+                p = calculo_media(a, b);
+            }
+
+            if (i != 0) {
+                nova->pixels[i*2-1][j*2] = p;
+            }
+        }
+    }
+
+    for (i = 0; i < nova->height - 2; i += 2) {
+        for (j = 0; j < nova->width - 2; j += 2) {
+            a = nova->pixels[i][j+1];
+            b = nova->pixels[i+1][j];
+            d = nova->pixels[i+1][j+2];
+            e = nova->pixels[i+2][j+1];
+            c = calculo_media4(&a, &b, &d, &e);
+            nova->pixels[i+1][j+1] = c;
+        }
+    }
+
+    return nova;
+}
+
 int main() {
     Imagem* img;
     Imagem* cop;
@@ -236,6 +330,7 @@ int main() {
     int limiar=-1;
     
     Imagem* rot;
+    Imagem* zoom;
 
     img = ler_imagem("lena.ppm");
     cop = criar_imagem(img->width, img->height);
@@ -247,10 +342,12 @@ int main() {
 
     binarizacao_imagem(img, cop, limiar);*/
     
-    calculo(cop, img,i,j);
-    aplicar_filtro_1(cop, img);
-   // rot = rotacionar90(img);
-    salvar_imagem(cop, "assssssssss.ppm");
+    /* calculo(cop, img,i,j);
+	aplicar_filtro_1(cop, img);
+    rot = rotacionar90(img);
+	zoom = zoom2x(img); */
+    
+	salvar_imagem(zoom, "ssss.ppm");
 
     return 0;
 }
