@@ -129,22 +129,128 @@ void binarizacao_imagem(Imagem* padrao, Imagem* copia, int limiar){
     }
 }
 
+void calculo(Imagem* cop, Imagem* img, int i, int j) {
+    int acr, acb, acg;
+    int k;
+    int m;
+    int ii;
+    int jj;
+    int produto;
+    float filtro[3][3];
+
+   /* filtro[0][0] = 1/9.0 * 1;
+    filtro[0][1] = 1/9.0 * 1;
+    filtro[0][2] = 1/9.0 * 1;
+
+    filtro[1][0] = 1/9.0 * 1;
+    filtro[1][1] = 1/9.0 * 1;
+    filtro[1][2] = 1/9.0 * 1;
+
+    filtro[2][0] = 1/9.0 * 1;
+    filtro[2][1] = 1/9.0 * 1;
+    filtro[2][2] = 1/9.0 * 1;*/
+
+    filtro[0][0] = -1;
+    filtro[0][1] = -1;
+    filtro[0][2] = -1;
+
+    filtro[1][0] = -1;
+    filtro[1][1] = 8;
+    filtro[1][2] = -1;
+
+    filtro[2][0] = -1;
+    filtro[2][1] = -1;
+    filtro[2][2] = -1;
+
+    acr = 0;
+    acg = 0;
+    acb = 0;
+
+    k = i - 1;
+    ii = 0;
+
+    while (k <= i + 1) {
+       m = j - 1;
+       jj = 0;
+
+       while (m <= j + 1) {
+         acr += img->pixels[k][m].r * filtro[ii][jj];
+         acg += img->pixels[k][m].g * filtro[ii][jj];
+         acb += img->pixels[k][m].b * filtro[ii][jj];
+         ++m;
+         ++jj;
+       }
+
+       ++k;
+       ++ii;
+    }
+
+    cop->pixels[i][j].r = sat(acr);
+    cop->pixels[i][j].g = sat(acg);
+    cop->pixels[i][j].b = sat(acb);
+}
+
+void aplicar_filtro_1(Imagem* modificada, Imagem* original) {
+    int width;
+    int height;
+    int i;
+    int j;
+    int k;
+    int m;
+    int r;
+    int g;
+    int b;
+    int acc;
+
+    height = original->height;
+    width = original->width;
+
+    for (i = 1; i < height - 1; ++i) {
+        for (j = 1; j < width - 1; ++j) {
+            calculo(modificada, original, i, j);
+        }
+    }
+}
+
+Imagem* rotacionar90(Imagem* original) {
+    int i;
+    int j;
+    int w = original->width;
+    int h = original->height;
+ 
+    Imagem* nova = criar_imagem(h, w);
+ 
+    for (i = 0; i < h; ++i) {
+        for (j = 0; j < w; ++j) {
+            nova->pixels[j][(h - 1) - i] = original->pixels[i][j];
+        }
+    }
+ 
+    return nova;
+}
+
 int main() {
     Imagem* img;
     Imagem* cop;
-    int i;
+    int i,j;
     int limiar=-1;
+    
+    Imagem* rot;
 
     img = ler_imagem("lena.ppm");
     cop = criar_imagem(img->width, img->height);
 
-    while(limiar <0 || limiar >255){
+   /* while(limiar <0 || limiar >255){
         printf("Digite seu limiar: ");
         scanf("%i", &limiar);
     }
 
-    binarizacao_imagem(img, cop, limiar);
-    salvar_imagem(cop, "okokok.ppm");
+    binarizacao_imagem(img, cop, limiar);*/
+    
+    calculo(cop, img,i,j);
+    aplicar_filtro_1(cop, img);
+   // rot = rotacionar90(img);
+    salvar_imagem(cop, "assssssssss.ppm");
 
     return 0;
 }
