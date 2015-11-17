@@ -229,6 +229,7 @@ Imagem* rotacionar90(Imagem* original) {
     return nova;
 }
 
+<<<<<<< HEAD
 
 
 
@@ -242,10 +243,40 @@ Imagem* rotacionar90(Imagem* original) {
             ii = i + h;
             jj = j + w;
             nov->pixels[ii][jj] = org->pixels[i][j];
+=======
+Pixel calculo_media(Pixel a, Pixel b) {
+    Pixel tmp;
+
+    tmp.r = (a.r + b.r) / 2;
+    tmp.g = (a.g + b.g) / 2;
+    tmp.b = (a.b + b.b) / 2;
+
+    return tmp;
+}
+
+Pixel rgb(int r, int g, int b) {
+    Pixel p;
+
+    p.r = r;
+    p.g = g;
+    p.b = b;
+
+    return p;
+}
+
+void limpar(Imagem* img, Pixel p) {
+    int i;
+    int j;
+
+    for (i = 0; i < img->height; ++i) {
+        for (j = 0; j < img->width; ++j) {
+            img->pixels[i][j] = p;
+>>>>>>> ac8b9e04150a037fa3d12f801cb7415382eeba5e
         }
     }
 }
 
+<<<<<<< HEAD
 
 
 Pixel calculo_media(Pixel a, Pixel b) {
@@ -258,6 +289,8 @@ Pixel calculo_media(Pixel a, Pixel b) {
     return tmp;
 }
 
+=======
+>>>>>>> ac8b9e04150a037fa3d12f801cb7415382eeba5e
 Pixel calculo_media4(Pixel* a, Pixel* b, Pixel* c, Pixel* d) {
     Pixel tmp;
 
@@ -321,6 +354,7 @@ Imagem* zoom2x(Imagem* org) {
     return nova;
 }
 
+<<<<<<< HEAD
 Imagem* zoom4x(Imagem* org) {
     zoom2x(zoom2x(org));
 }
@@ -352,6 +386,8 @@ Imagem* zoom1_2(Imagem* org) {
 
 
 
+=======
+>>>>>>> ac8b9e04150a037fa3d12f801cb7415382eeba5e
 int main() {
     Imagem* img;
     Imagem* cop;
@@ -359,6 +395,7 @@ int main() {
     int limiar=-1;
 
     Imagem* rot;
+    Imagem* zoom;
 
     img = ler_imagem("lena.ppm");
     cop = criar_imagem(img->width, img->height);
@@ -371,11 +408,20 @@ int main() {
     }
 
     binarizacao_imagem(img, cop, limiar);*/
+<<<<<<< HEAD
 
     calculo(cop, img,i,j);
     aplicar_filtro_1(cop, img);
    // rot = rotacionar90(img);
     salvar_imagem(cop, "assssssssss.ppm");
+=======
+    
+    /* calculo(cop, img,i,j);
+	aplicar_filtro_1(cop, img);
+	zoom = zoom2x(img); */
+    
+	salvar_imagem(zoom, "ssss.ppm");
+>>>>>>> ac8b9e04150a037fa3d12f801cb7415382eeba5e
 
     return 0;
 }
