@@ -40,7 +40,7 @@ Imagem* ler_imagem(char* nome_arquivo) {
     int max_value;
     int i;
     int j;
-    int r, g, b;
+    unsigned char r, g, b;
     FILE* arquivo;
     Imagem* img;
 
@@ -49,16 +49,30 @@ Imagem* ler_imagem(char* nome_arquivo) {
     fscanf(arquivo, "%s", P3);
     fscanf(arquivo, "%i %i", &width, &height);
     fscanf(arquivo, "%i", &max_value);
-
     img = criar_imagem(width, height);
 
-    for (i = 0; i < height; ++i) {
-        for (j = 0; j < width; ++j) {
-            fscanf(arquivo, "%i %i %i", &r, &g, &b);
-            img->pixels[i][j].r = r;
-            img->pixels[i][j].g = g;
-            img->pixels[i][j].b = b;
+    if (P3[1] == '3') {
+        for (i = 0; i < height; ++i) {
+            for (j = 0; j < width; ++j) {
+                fscanf(arquivo, "%i %i %i", &r, &g, &b);
+                img->pixels[i][j].r = r;
+                img->pixels[i][j].g = g;
+                img->pixels[i][j].b = b;
+            }
         }
+    } else if (P3[1] == '6') {
+        fscanf(arquivo, "%c", &r);
+        for (i = 0; i < height; ++i) {
+            for (j = 0; j < width; ++j) {
+                fscanf(arquivo, "%c%c%c", &r, &g, &b);
+                img->pixels[i][j].r = (unsigned int) r;
+                img->pixels[i][j].g = (unsigned int) g;
+                img->pixels[i][j].b = (unsigned int) b;
+            }
+        }
+    } else {
+        printf("Erro: formato de imagem desconhecida\n");
+        return NULL;
     }
 
     fclose(arquivo);
@@ -102,7 +116,8 @@ int sat(int x) {
     }
 }
 
-void binarizacao_imagem(Imagem* padrao, Imagem* copia, int limiar){
+Imagem* binarizacao_imagem(Imagem* padrao, int limiar) {
+    Imagem* copia = criar_imagem(padrao->width, padrao->height);
     int i;
     int j;
     int esc_C, a=0;
@@ -127,9 +142,11 @@ void binarizacao_imagem(Imagem* padrao, Imagem* copia, int limiar){
             copia->pixels[i][j].b = a;
         }
     }
+
+    return copia;
 }
 
-void calculo(Imagem* cop, Imagem* img, int i, int j) {
+void calculo_blur(Imagem* cop, Imagem* img, int i, int j) {
     int acr, acb, acg;
     int k;
     int m;
@@ -138,17 +155,103 @@ void calculo(Imagem* cop, Imagem* img, int i, int j) {
     int produto;
     float filtro[3][3];
 
-   /* filtro[0][0] = 1/9.0 * 1;
-    filtro[0][1] = 1/9.0 * 1;
-    filtro[0][2] = 1/9.0 * 1;
+    filtro[0][0] = 1/9.0;
+    filtro[0][1] = 1/9.0;
+    filtro[0][2] = 1/9.0;
 
-    filtro[1][0] = 1/9.0 * 1;
-    filtro[1][1] = 1/9.0 * 1;
-    filtro[1][2] = 1/9.0 * 1;
+    filtro[1][0] = 1/9.0;
+    filtro[1][1] = 1/9.0;
+    filtro[1][2] = 1/9.0;
 
-    filtro[2][0] = 1/9.0 * 1;
-    filtro[2][1] = 1/9.0 * 1;
-    filtro[2][2] = 1/9.0 * 1;*/
+    filtro[2][0] = 1/9.0;
+    filtro[2][1] = 1/9.0;
+    filtro[2][2] = 1/9.0;
+
+    acr = 0;
+    acg = 0;
+    acb = 0;
+
+    k = i - 1;
+    ii = 0;
+
+    while (k <= i + 1) {
+       m = j - 1;
+       jj = 0;
+
+       while (m <= j + 1) {
+         acr += img->pixels[k][m].r * filtro[ii][jj];
+         acg += img->pixels[k][m].g * filtro[ii][jj];
+         acb += img->pixels[k][m].b * filtro[ii][jj];
+         ++m;
+         ++jj;
+       }
+
+       ++k;
+       ++ii;
+    }
+
+    cop->pixels[i][j].r = sat(acr);
+    cop->pixels[i][j].g = sat(acg);
+    cop->pixels[i][j].b = sat(acb);
+}
+
+void calculo_sharpen(Imagem* cop, Imagem* img, int i, int j) {
+    int acr, acb, acg;
+    int k;
+    int m;
+    int ii;
+    int jj;
+    int produto;
+    float filtro[3][3];
+
+    filtro[0][0] = 0;
+    filtro[0][1] = -1;
+    filtro[0][2] = 0;
+
+    filtro[1][0] = -1;
+    filtro[1][1] = 5;
+    filtro[1][2] = -1;
+
+    filtro[2][0] = 0;
+    filtro[2][1] = -1;
+    filtro[2][2] = 0;
+
+    acr = 0;
+    acg = 0;
+    acb = 0;
+
+    k = i - 1;
+    ii = 0;
+
+    while (k <= i + 1) {
+       m = j - 1;
+       jj = 0;
+
+       while (m <= j + 1) {
+         acr += img->pixels[k][m].r * filtro[ii][jj];
+         acg += img->pixels[k][m].g * filtro[ii][jj];
+         acb += img->pixels[k][m].b * filtro[ii][jj];
+         ++m;
+         ++jj;
+       }
+
+       ++k;
+       ++ii;
+    }
+
+    cop->pixels[i][j].r = sat(acr);
+    cop->pixels[i][j].g = sat(acg);
+    cop->pixels[i][j].b = sat(acb);
+}
+
+void calculo_borda(Imagem* cop, Imagem* img, int i, int j) {
+    int acr, acb, acg;
+    int k;
+    int m;
+    int ii;
+    int jj;
+    int produto;
+    float filtro[3][3];
 
     filtro[0][0] = -1;
     filtro[0][1] = -1;
@@ -156,6 +259,7 @@ void calculo(Imagem* cop, Imagem* img, int i, int j) {
 
     filtro[1][0] = -1;
     filtro[1][1] = 8;
+
     filtro[1][2] = -1;
 
     filtro[2][0] = -1;
@@ -190,7 +294,8 @@ void calculo(Imagem* cop, Imagem* img, int i, int j) {
     cop->pixels[i][j].b = sat(acb);
 }
 
-void aplicar_filtro_1(Imagem* modificada, Imagem* original) {
+Imagem* blur(Imagem* original) {
+    Imagem* modificada = criar_imagem(original->width, original->height);
     int width;
     int height;
     int i;
@@ -207,25 +312,78 @@ void aplicar_filtro_1(Imagem* modificada, Imagem* original) {
 
     for (i = 1; i < height - 1; ++i) {
         for (j = 1; j < width - 1; ++j) {
-            calculo(modificada, original, i, j);
+            calculo_blur(modificada, original, i, j);
         }
     }
+
+    return modificada;
 }
+
+Imagem* sharpen(Imagem* original) {
+    Imagem* modificada = criar_imagem(original->width, original->height);
+    int width;
+    int height;
+    int i;
+    int j;
+    int k;
+    int m;
+    int r;
+    int g;
+    int b;
+    int acc;
+
+    height = original->height;
+    width = original->width;
+
+    for (i = 1; i < height - 1; ++i) {
+        for (j = 1; j < width - 1; ++j) {
+            calculo_sharpen(modificada, original, i, j);
+        }
+    }
+
+    return modificada;
+}
+
+Imagem* borda(Imagem* original) {
+    Imagem* modificada = criar_imagem(original->width, original->height);
+    int width;
+    int height;
+    int i;
+    int j;
+    int k;
+    int m;
+    int r;
+    int g;
+    int b;
+    int acc;
+
+    height = original->height;
+    width = original->width;
+
+    for (i = 1; i < height - 1; ++i) {
+        for (j = 1; j < width - 1; ++j) {
+            calculo_borda(modificada, original, i, j);
+        }
+    }
+
+    return modificada;
+}
+
 
 Imagem* rotacionar90(Imagem* original) {
     int i;
     int j;
     int w = original->width;
     int h = original->height;
- 
+
     Imagem* nova = criar_imagem(h, w);
- 
+
     for (i = 0; i < h; ++i) {
         for (j = 0; j < w; ++j) {
             nova->pixels[j][(h - 1) - i] = original->pixels[i][j];
         }
     }
- 
+
     return nova;
 }
 
@@ -256,6 +414,7 @@ void limpar(Imagem* img, Pixel p) {
     for (i = 0; i < img->height; ++i) {
         for (j = 0; j < img->width; ++j) {
             img->pixels[i][j] = p;
+
         }
     }
 }
@@ -323,36 +482,88 @@ Imagem* zoom2x(Imagem* org) {
     return nova;
 }
 
-int main() {
-    Imagem* img;
-    Imagem* cop;
-    int i,j;
-    int limiar=-1;
-    
-    Imagem* rot;
-    Imagem* zoom;
+Imagem* reduzir2x(Imagem* org) {
+    int i;
+    int j;
+    Pixel p, a, b, d, e, c;
+    Imagem* nova;
 
-    img = ler_imagem("lena.ppm");
-    cop = criar_imagem(img->width, img->height);
+    nova = criar_imagem(org->width / 2, org->height / 2);
+    limpar(nova, rgb(255, 255, 255));
 
-   /* while(limiar <0 || limiar >255){
-        printf("Digite seu limiar: ");
-        scanf("%i", &limiar);
+    for (i = 0; i < org->height - 2; i += 2) {
+        for (j = 0; j < org->width - 2; j += 2) {
+            a = org->pixels[i][j];
+            b = org->pixels[i][j+1];
+            c = org->pixels[i+1][j];
+            d = org->pixels[i+1][j+1];
+            p = calculo_media4(&a, &b, &c, &d);
+            nova->pixels[i/2][j/2] = p;
+        }
     }
 
-    binarizacao_imagem(img, cop, limiar);*/
-    
-    /* calculo(cop, img,i,j);
-	aplicar_filtro_1(cop, img);
-    rot = rotacionar90(img);
-	zoom = zoom2x(img); */
-    
-	salvar_imagem(zoom, "ssss.ppm");
+    return nova;
+}
+
+int mostrar_menu() {
+    int opcao;
+
+    printf("1 - Ler arquivo\n");
+    printf("2 - Blur\n");
+    printf("3 - Sharpen\n");
+    printf("4 - Deteccao de Borda\n");
+    printf("5 - Binarizacao\n");
+    printf("6 - Rotacionar\n");
+    printf("7 - Zoom AUMENTAR\n");
+    printf("8 - Zoom REDUZIR\n");
+    printf("9 - Salvar\n");
+    printf("0 - Sair\n");
+
+    printf("Opcao: ");
+    scanf("%i", &opcao);
+
+    return opcao;
+}
+
+int main() {
+    Imagem* img;
+    int opcao = 1;
+    int i=0,j=0;
+    int limiar=-1;
+    char nome[255];
+
+
+    while (opcao != 0) {
+        opcao = mostrar_menu();
+
+        if (opcao == 1) {
+            printf("Nome do arquivo: ");
+            scanf("%s", nome);
+            img = ler_imagem(nome);
+        } else if (opcao == 2) {
+            img = blur(img);
+        } else if (opcao == 3) {
+            img = sharpen(img);
+    	} else if(opcao == 4){
+			img = borda(img);	
+		}else if(opcao == 5){
+		    printf("Digite o limiar: ");
+            scanf("%i", &limiar);
+            img = binarizacao_imagem(img, limiar);	
+		}else if(opcao == 6){
+			img = rotacionar90(img);	
+		}else if(opcao == 7){
+			img = zoom2x(img);	
+		}else if(opcao == 8){
+			img = reduzir2x(img);	
+		}else if (opcao == 9) {
+		    printf("Nome do arquivo: ");
+            scanf("%s", nome);
+            salvar_imagem(img, nome);
+        }else{
+        	printf("Opção inválida.");
+		}
+    }
 
     return 0;
 }
-
-
-
-
-
