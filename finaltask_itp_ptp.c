@@ -387,6 +387,7 @@ Imagem* rotacionar90(Imagem* original) {
     return nova;
 }
 
+<<<<<<< HEAD
 
 
 
@@ -399,6 +400,16 @@ Imagem* rotacionar90(Imagem* original) {
             nov->pixels[ii][jj] = org->pixels[i][j];
 
 
+=======
+Imagem* rotacionar180(Imagem* original){
+	return rotacionar90(rotacionar90(original));
+}
+
+Imagem* rotacionar270(Imagem* original){
+	return rotacionar180(rotacionar90(original));
+}
+
+>>>>>>> a436f073559433a4a699a2b9df557ad4dacd90eb
 Pixel calculo_media(Pixel a, Pixel b) {
     Pixel tmp;
 
@@ -631,6 +642,7 @@ int main() {
     int i=0,j=0;
     int limiar=-1;
     char nome[255];
+    int grau=0;
 
 
     while (opcao != 0) {
@@ -651,7 +663,17 @@ int main() {
             scanf("%i", &limiar);
             img = binarizacao_imagem(img, limiar);	
 		}else if(opcao == 6){
-			img = rotacionar90(img);	
+			printf("Grau de rotacao (90, 180 ou 270º): ");
+			scanf("%i", &grau);
+			if(grau == 90){
+				img = rotacionar90(img);
+			}else if(grau == 180){
+				img = rotacionar180(img);
+			}else if(grau == 270){
+				img = rotacionar270(img);
+			}else{
+				printf("O grau informado nao e permitido.");
+			}
 		}else if(opcao == 7){
 			img = zoom2x(img);	
 		}else if(opcao == 8){
