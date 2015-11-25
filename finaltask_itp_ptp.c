@@ -7,11 +7,13 @@ typedef struct Pixel {
     int b;
 } Pixel;
 
+
 typedef struct Imagem {
     int width;
     int height;
     Pixel** pixels;
 } Imagem;
+
 
 Imagem* criar_imagem(int width, int height) {
     int i;
@@ -32,6 +34,7 @@ Imagem* criar_imagem(int width, int height) {
 
     return nova_img;
 }
+
 
 Imagem* ler_imagem(char* nome_arquivo) {
     char P3[3];
@@ -106,6 +109,7 @@ void salvar_imagem(Imagem* img, char* nome_arquivo) {
     fclose(arquivo);
 }
 
+
 int sat(int x) {
     if (x < 0) {
         return 0;
@@ -115,6 +119,7 @@ int sat(int x) {
         return x;
     }
 }
+
 
 Imagem* binarizacao_imagem(Imagem* padrao, int limiar) {
     Imagem* copia = criar_imagem(padrao->width, padrao->height);
@@ -145,6 +150,7 @@ Imagem* binarizacao_imagem(Imagem* padrao, int limiar) {
 
     return copia;
 }
+
 
 void calculo_blur(Imagem* cop, Imagem* img, int i, int j) {
     int acr, acb, acg;
@@ -195,6 +201,7 @@ void calculo_blur(Imagem* cop, Imagem* img, int i, int j) {
     cop->pixels[i][j].b = sat(acb);
 }
 
+
 void calculo_sharpen(Imagem* cop, Imagem* img, int i, int j) {
     int acr, acb, acg;
     int k;
@@ -243,6 +250,7 @@ void calculo_sharpen(Imagem* cop, Imagem* img, int i, int j) {
     cop->pixels[i][j].g = sat(acg);
     cop->pixels[i][j].b = sat(acb);
 }
+
 
 void calculo_borda(Imagem* cop, Imagem* img, int i, int j) {
     int acr, acb, acg;
@@ -393,8 +401,6 @@ void calculo_gaussianblur(Imagem* cop, Imagem* img, int i, int j) {
     filtro[2][1] = 1/16.0 * 2.0;
     filtro[2][2] = 1/16.0 * 1.0;
 
-
-
     acr = 0;
     acg = 0;
     acb = 0;
@@ -423,6 +429,7 @@ void calculo_gaussianblur(Imagem* cop, Imagem* img, int i, int j) {
     cop->pixels[i][j].b = sat(acb);
 }
 
+
 Imagem* gaussianblur(Imagem* original) {
     Imagem* modificada = criar_imagem(original->width, original->height);
     int width;
@@ -449,7 +456,6 @@ Imagem* gaussianblur(Imagem* original) {
 }
 
 
-
 Imagem* rotacionar90(Imagem* original) {
     int i;
     int j;
@@ -468,13 +474,10 @@ Imagem* rotacionar90(Imagem* original) {
 }
 
 
-
-
-
-
 Imagem* rotacionar180(Imagem* original){
 	return rotacionar90(rotacionar90(original));
 }
+
 
 Imagem* rotacionar270(Imagem* original){
 	return rotacionar180(rotacionar90(original));
@@ -491,6 +494,7 @@ Pixel calculo_media(Pixel a, Pixel b) {
     return tmp;
 }
 
+
 Pixel rgb(int r, int g, int b) {
     Pixel p;
 
@@ -500,6 +504,7 @@ Pixel rgb(int r, int g, int b) {
 
     return p;
 }
+
 
 void limpar(Imagem* img, Pixel p) {
     int i;
@@ -514,8 +519,6 @@ void limpar(Imagem* img, Pixel p) {
 }
 
 
-
-
 Pixel calculo_media4(Pixel* a, Pixel* b, Pixel* c, Pixel* d) {
     Pixel tmp;
 
@@ -525,6 +528,7 @@ Pixel calculo_media4(Pixel* a, Pixel* b, Pixel* c, Pixel* d) {
 
     return tmp;
 }
+
 
 Imagem* zoom2x(Imagem* org) {
     int i;
@@ -580,20 +584,16 @@ Imagem* zoom2x(Imagem* org) {
 }
 
 
-
 Imagem* zoom4x(Imagem* org) {
     zoom2x(zoom2x(org));
 }
 
 
-
 Imagem* reduzir2x(Imagem* org) {
-
     int i;
     int j;
     Pixel p, a, b, d, e, c;
     Imagem* nova;
-
 
     nova = criar_imagem(org->width / 2, org->height / 2);
     limpar(nova, rgb(255, 255, 255));
@@ -611,7 +611,6 @@ Imagem* reduzir2x(Imagem* org) {
 
     return nova;
 }
-
 
 
 int mostrar_menu() {
@@ -634,6 +633,7 @@ int mostrar_menu() {
 
     return opcao;
 }
+
 
 int main() {
     Imagem* img;
@@ -690,4 +690,3 @@ int main() {
 
     return 0;
 }
-
