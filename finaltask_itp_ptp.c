@@ -370,6 +370,86 @@ Imagem* borda(Imagem* original) {
 }
 
 
+
+
+void calculo_gaussianblur(Imagem* cop, Imagem* img, int i, int j) {
+    int acr, acb, acg;
+    int k;
+    int m;
+    int ii;
+    int jj;
+    int produto;
+    float filtro[3][3];
+
+    filtro[0][0] = 1/16.0 * 1.0;
+    filtro[0][1] = 1/16.0 * 2.0;
+    filtro[0][2] = 1/16.0 * 1.0;
+
+    filtro[1][0] = 1/16.0 * 2.0;
+    filtro[1][1] = 1/16.0 * 4.0;
+    filtro[1][2] = 1/16.0 * 2.0;
+
+    filtro[2][0] = 1/16.0 * 1.0;
+    filtro[2][1] = 1/16.0 * 2.0;
+    filtro[2][2] = 1/16.0 * 1.0;
+
+
+
+    acr = 0;
+    acg = 0;
+    acb = 0;
+
+    k = i - 1;
+    ii = 0;
+
+    while (k <= i + 1) {
+       m = j - 1;
+       jj = 0;
+
+       while (m <= j + 1) {
+         acr += img->pixels[k][m].r * filtro[ii][jj];
+         acg += img->pixels[k][m].g * filtro[ii][jj];
+         acb += img->pixels[k][m].b * filtro[ii][jj];
+         ++m;
+         ++jj;
+       }
+
+       ++k;
+       ++ii;
+    }
+
+    cop->pixels[i][j].r = sat(acr);
+    cop->pixels[i][j].g = sat(acg);
+    cop->pixels[i][j].b = sat(acb);
+}
+
+Imagem* gaussianblur(Imagem* original) {
+    Imagem* modificada = criar_imagem(original->width, original->height);
+    int width;
+    int height;
+    int i;
+    int j;
+    int k;
+    int m;
+    int r;
+    int g;
+    int b;
+    int acc;
+
+    height = original->height;
+    width = original->width;
+
+    for (i = 1; i < height - 1; ++i) {
+        for (j = 1; j < width - 1; ++j) {
+            calculo_gaussianblur(modificada, original, i, j);
+        }
+    }
+
+    return modificada;
+}
+
+
+
 Imagem* rotacionar90(Imagem* original) {
     int i;
     int j;
@@ -387,20 +467,11 @@ Imagem* rotacionar90(Imagem* original) {
     return nova;
 }
 
-<<<<<<< HEAD
 
 
 
-    limpar(nov, rgb(255, 255, 255));
-
-    for (i = 0; i < org->height; ++i) {
-        for (j = 0; j < org->width; ++j) {
-            ii = i + h;
-            jj = j + w;
-            nov->pixels[ii][jj] = org->pixels[i][j];
 
 
-=======
 Imagem* rotacionar180(Imagem* original){
 	return rotacionar90(rotacionar90(original));
 }
@@ -409,7 +480,7 @@ Imagem* rotacionar270(Imagem* original){
 	return rotacionar180(rotacionar90(original));
 }
 
->>>>>>> a436f073559433a4a699a2b9df557ad4dacd90eb
+
 Pixel calculo_media(Pixel a, Pixel b) {
     Pixel tmp;
 
@@ -437,27 +508,13 @@ void limpar(Imagem* img, Pixel p) {
     for (i = 0; i < img->height; ++i) {
         for (j = 0; j < img->width; ++j) {
             img->pixels[i][j] = p;
-<<<<<<< HEAD
 
-=======
-
->>>>>>> 3f143ac2e3233dcf675e7d4ec47f79106d7c92be
         }
     }
 }
 
 
 
-
-Pixel calculo_media(Pixel a, Pixel b) {
-    Pixel tmp;
-
-    tmp.r = (a.r + b.r) / 2;
-    tmp.g = (a.g + b.g) / 2;
-    tmp.b = (a.b + b.b) / 2;
-
-    return tmp;
-}
 
 Pixel calculo_media4(Pixel* a, Pixel* b, Pixel* c, Pixel* d) {
     Pixel tmp;
@@ -522,22 +579,21 @@ Imagem* zoom2x(Imagem* org) {
     return nova;
 }
 
-<<<<<<< HEAD
+
 
 Imagem* zoom4x(Imagem* org) {
     zoom2x(zoom2x(org));
 }
 
 
-Imagem* zoom1_2(Imagem* org) {
-=======
+
 Imagem* reduzir2x(Imagem* org) {
->>>>>>> 3f143ac2e3233dcf675e7d4ec47f79106d7c92be
+
     int i;
     int j;
     Pixel p, a, b, d, e, c;
     Imagem* nova;
-<<<<<<< HEAD
+
 
     nova = criar_imagem(org->width / 2, org->height / 2);
     limpar(nova, rgb(255, 255, 255));
@@ -557,64 +613,6 @@ Imagem* reduzir2x(Imagem* org) {
 }
 
 
-
-
-
-
-int main() {
-    Imagem* img;
-    Imagem* cop;
-    int i,j;
-    int limiar=-1;
-
-    Imagem* rot;
-    Imagem* zoom;
-=======
->>>>>>> 3f143ac2e3233dcf675e7d4ec47f79106d7c92be
-
-    nova = criar_imagem(org->width / 2, org->height / 2);
-    limpar(nova, rgb(255, 255, 255));
-
-<<<<<<< HEAD
-
-    rotacionar90(img);
-   /* while(limiar <0 || limiar >255){
-        printf("Digite seu limiar: ");
-        scanf("%i", &limiar);
-    }
-
-    binarizacao_imagem(img, cop, limiar);*/
-
-
-    calculo(cop, img,i,j);
-    aplicar_filtro_1(cop, img);
-   // rot = rotacionar90(img);
-    salvar_imagem(cop, "assssssssss.ppm");
-
-
-    /* calculo(cop, img,i,j);
-	aplicar_filtro_1(cop, img);
-	zoom = zoom2x(img); */
-
-	salvar_imagem(zoom, "ssss.ppm");
-
-
-    return 0;
-}
-=======
-    for (i = 0; i < org->height - 2; i += 2) {
-        for (j = 0; j < org->width - 2; j += 2) {
-            a = org->pixels[i][j];
-            b = org->pixels[i][j+1];
-            c = org->pixels[i+1][j];
-            d = org->pixels[i+1][j+1];
-            p = calculo_media4(&a, &b, &c, &d);
-            nova->pixels[i/2][j/2] = p;
-        }
-    }
-
-    return nova;
-}
 
 int mostrar_menu() {
     int opcao;
@@ -627,7 +625,8 @@ int mostrar_menu() {
     printf("6 - Rotacionar\n");
     printf("7 - Zoom AUMENTAR\n");
     printf("8 - Zoom REDUZIR\n");
-    printf("9 - Salvar\n");
+    printf("9 - Gaussian blur\n");
+    printf("10 - Salvar\n");
     printf("0 - Sair\n");
 
     printf("Opcao: ");
@@ -657,11 +656,11 @@ int main() {
         } else if (opcao == 3) {
             img = sharpen(img);
     	} else if(opcao == 4){
-			img = borda(img);	
+			img = borda(img);
 		}else if(opcao == 5){
 		    printf("Digite o limiar: ");
             scanf("%i", &limiar);
-            img = binarizacao_imagem(img, limiar);	
+            img = binarizacao_imagem(img, limiar);
 		}else if(opcao == 6){
 			printf("Grau de rotacao (90, 180 ou 270º): ");
 			scanf("%i", &grau);
@@ -675,10 +674,12 @@ int main() {
 				printf("O grau informado nao e permitido.");
 			}
 		}else if(opcao == 7){
-			img = zoom2x(img);	
+			img = zoom2x(img);
 		}else if(opcao == 8){
-			img = reduzir2x(img);	
-		}else if (opcao == 9) {
+			img = reduzir2x(img);
+		}else if(opcao == 9){
+			img = gaussianblur(img);
+		}else if (opcao == 10){
 		    printf("Nome do arquivo: ");
             scanf("%s", nome);
             salvar_imagem(img, nome);
@@ -689,4 +690,4 @@ int main() {
 
     return 0;
 }
->>>>>>> 3f143ac2e3233dcf675e7d4ec47f79106d7c92be
+
